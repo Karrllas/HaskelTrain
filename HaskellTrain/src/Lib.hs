@@ -60,3 +60,34 @@ int2nat x = Succ (int2nat (x-1))
 addd :: Nat -> Nat -> Nat
 addd Zero n     = n
 addd (Succ m) n = Succ (addd m n)
+
+-- Experssions
+data Expr = Val Int | Add Expr Expr
+                    | Mult Expr Expr
+
+
+
+eval :: Expr -> Int
+eval (Val n) = n 
+eval (Add x y) = eval x + eval y
+eval (Mult x y) = eval x * eval y 
+
+-- Binary tree
+data Tree   = Leaf Int
+            | Node Int Tree Tree
+
+-- Example
+tree :: Tree
+tree = Node 5   (Leaf 4)
+                (Node 3 (Leaf 2)
+                        (Leaf 1))
+
+occurs :: Int -> Tree -> Bool
+occurs m (Leaf n) = m == n
+occurs m (Node n t1 t2) = m == n || occurs m t1 || occurs m t2 
+
+tolist :: Tree -> [Int]
+tolist (Leaf n) = [n]
+tolist (Node n t1 t2) = [n] 
+                       ++ tolist t1 
+                       ++ tolist t2    
