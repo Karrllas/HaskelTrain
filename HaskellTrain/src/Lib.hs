@@ -90,4 +90,45 @@ tolist :: Tree -> [Int]
 tolist (Leaf n) = [n]
 tolist (Node n t1 t2) = [n] 
                        ++ tolist t1 
-                       ++ tolist t2    
+                       ++ tolist t2   
+
+-- Data types
+
+factors :: Integral a => a -> [a]
+factors n = [x | x <- [2..n-1], n `mod` x == 0]
+
+type Pos = (Int,Int)
+origin :: Pos
+origin = (0,0)
+
+left :: Pos -> Pos
+left (x,y) = (x-1,y)
+
+data Answer = Yes | No | Unknown
+        deriving Show
+
+answers :: [Answer]
+answers = [Yes,No,Unknown]
+
+flip2 :: Answer -> Answer
+flip2 Yes = No
+flip2 No = Yes
+flip2 Unknown = Unknown
+
+
+data Maybex a = Nothingx | Justx a
+        deriving Show
+safediv :: Int -> Int -> Maybex Int
+safediv m 0 = Nothingx
+safediv m n = Justx (div m n)
+
+isJustx :: Maybex a -> Bool
+isJustx Nothingx = False
+isJustx (Justx _) = True
+
+fromJustx :: Maybex p -> p
+fromJustx Nothingx = error "shouldn't happen"
+fromJustx (Justx x) = x
+
+divFrom10x :: Int -> [ Int]
+divFrom10x n =  [ fromJustx(safediv 10 x) | x <- [n..50] , isJustx (safediv 10 x) ]
