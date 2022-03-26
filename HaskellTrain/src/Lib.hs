@@ -2,6 +2,8 @@ module Lib
     ( someFunc
     ) where
 
+--import Test.QuickCheck (quickCheck)
+
 someFunc :: IO ()
 someFunc = putStrLn "Hello"
 
@@ -132,3 +134,69 @@ fromJustx (Justx x) = x
 
 divFrom10x :: Int -> [ Int]
 divFrom10x n =  [ fromJustx(safediv 10 x) | x <- [n..50] , isJustx (safediv 10 x) ]
+
+-- data types cont
+
+data StudentID = StudentID {
+                   -- | 
+                   macId :: String,
+                   -- | 
+                   studentNum :: String} {-pattern matched macId studentNum, to pull out data -}
+    deriving Show
+student1 :: StudentID
+student1 = StudentID "jimmy" "00001"
+
+-- recursive algos
+
+bubble :: Ord a => [a] -> [a]
+bubble (x0:x1:xs)
+    | x0 > x1 = x1:bubble (x0:xs) 
+    | otherwise = x0:bubble (x1:xs)
+bubble xs = xs
+
+bubbleSort :: Ord a => [a] -> [a]
+bubbleSort xs = 
+    let 
+        xs' = bubble xs
+    in if xs' == xs
+        then xs
+        else bubbleSort xs'
+
+insertion :: Ord t => t -> [t] -> [t]
+insertion y [] = [y] 
+insertion y (x:xs) 
+    | y < x = y:(x:xs)
+    | otherwise = x : insertion y xs
+
+insertionSort :: Ord t => [t] -> [t]
+insertionSort [] = []
+insertionSort (x:xs) = insertion x (insertionSort xs)
+ 
+qsort :: Ord a => [a] -> [a]
+qsort [] = []
+qsort (p:xs) =
+    let
+        lesser = filter (<p ) xs
+        greater = [ x | x<-xs, x > p]
+    in qsort lesser ++ [p] ++ qsort greater
+ 
+-- I/O
+
+printHello :: IO ()
+printHello = print "HiWorld"
+
+printSomeStuff :: IO()
+printSomeStuff = do putStr "some "
+                    putStrLn "stuff"
+
+makeAFile :: IO()
+makeAFile = do writeFile "file.txt" "some stuff\n"
+               appendFile "file.txt" " other stuff" 
+
+echo :: IO ()
+echo = do line <- getLine
+          print line
+
+echoFile :: IO ()
+echoFile = do file <- readFile "file.txt"
+              putStrLn file
