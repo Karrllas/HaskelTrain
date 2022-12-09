@@ -177,7 +177,7 @@ qsort [] = []
 qsort (p:xs) =
     let
         lesser = filter (<p ) xs
-        greater = [ x | x<-xs, x > p]
+        greater = [ x | x<-xs, x >= p]
     in qsort lesser ++ [p] ++ qsort greater
  
 -- I/O
@@ -200,3 +200,55 @@ echo = do line <- getLine
 echoFile :: IO ()
 echoFile = do file <- readFile "file.txt"
               putStrLn file
+
+-- propositional logic
+
+and :: Bool -> Bool -> Bool
+and True True = True
+and _ _ = False
+
+or :: Bool -> Bool -> Bool
+or False False = False
+or _ _ = True
+
+not :: Bool -> Bool
+not False = True
+not True = False
+
+implies :: Bool -> Bool -> Bool
+implies True False = False
+implies _ _ = True
+
+---- Rock  paper sci
+--- Program Model
+
+data Move = Rock | Paper | Scissors
+    deriving (Show,Eq)
+
+type Strategy = [Move] -> Move
+
+--- Strategies
+
+copyCat :: Strategy
+copyCat [] = Rock
+copyCat (latest:_) = latest
+
+cycleS :: Strategy
+cycleS moves = case length moves `mod` 3 of
+                0 ->  Rock
+                1 -> Paper
+                2 -> Scissors
+                _ -> Rock 
+
+alwaysRock :: Strategy
+alwaysRock _ = Rock
+
+playGame :: Strategy -> [Move] -> IO ()
+playGame strategy moves = do { putStr "Enter Move: ";
+                               inp <- getLine ;
+                               putStrLn $ "AI plays: " ++ show (strategy moves);
+                               case inp of 
+                                   "Rock" -> playGame strategy (Rock:moves)
+                                   "Paper" -> playGame strategy (Paper:moves)
+                                   "Scissors" -> playGame strategy (Scissors:moves)
+                                   _ -> return () } 
