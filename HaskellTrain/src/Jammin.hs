@@ -97,6 +97,7 @@ insert' b (Node left a right)
     | b == a = Node left a right
     | b < a = Node (insert' b left) a right
     | b > a = Node left a (insert' b right)
+    | otherwise = Node Leaf b Leaf
 
 
 mapTree :: (a -> b) -> BinaryTree a -> BinaryTree b
@@ -146,4 +147,13 @@ foldrTree f acc (Node left a right) =  (foldrTree f acc left) a (foldrTree f acc
 
 isSubsequenceOf :: (Eq a) => [a] -> [a] -> Bool
 isSubsequenceOf xs ys = foldr (\ x -> (&&) (elem x ys)) True xs
+
+
+myIterate :: (a -> a) -> a -> [a]
+myIterate f a = a : myIterate f (f a)
+
+myUnfoldr :: (b -> Maybe (a, b)) -> b -> [a]
+myUnfoldr f x = case f x of 
+    Nothing -> []
+    Just (y,z) -> y : myUnfoldr f z
 
