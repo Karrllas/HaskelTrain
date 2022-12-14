@@ -2,6 +2,7 @@ module Exerc where
 
 import Data.List ( sort , intersperse)
 import GHC.IO.Device (IODevice(dup2))
+import Data.Char 
 
 m :: (x->y) -> (y->(w,z))-> x -> w
 m f g x = fst (g (f x))
@@ -139,4 +140,28 @@ wordNumber n = tail (concat (map (("-"++).digitToWord) (digits n)))
 wordNumber' :: Int -> String
 wordNumber' n = tail $ concatMap (("-"++).digitToWord) $ digits n
 
- 
+
+
+multiples3 = (length.filter (\x -> mod x 3 == 0)) [1..30]
+
+noArticles :: String -> [String]
+noArticles = filter (\x ->  x `notElem` ["a", "the", "an"]).words
+
+myZip :: [a] -> [b] -> [(a, b)]
+myZip [] ys = []
+myZip xs [] = []
+myZip (x:xs) (y:ys) = (x,y) : myZip xs ys
+
+myZipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
+myZipWith f xs []= [] 
+myZipWith f [] ys= []   
+myZipWith f (x:xs) (y:ys)= f x y : myZipWith f xs ys
+
+myZip' :: [a] -> [b] -> [(a, b)]
+myZip' = myZipWith (,)
+
+myAny :: (a -> Bool) -> [a] -> Bool
+myAny f = foldr ((||).f) False 
+
+squishMap :: Foldable t => (a1 -> a2) -> t a1 -> [a2]
+squishMap f = foldr ((:).f ) [] 
