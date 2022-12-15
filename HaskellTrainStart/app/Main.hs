@@ -1,8 +1,12 @@
 module Main where
 
-import Hello
 
+import System.IO
+import Hello
 main :: IO ()
-main = do
-    name <- getLine
-    sayHello name
+main = do 
+    c <- getChar
+    c' <- getChar
+    if c == 'a'
+        then putStrLn "True"
+        else return ()
