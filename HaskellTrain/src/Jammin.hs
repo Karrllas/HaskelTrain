@@ -6,6 +6,7 @@ import Data.List hiding (isSubsequenceOf)
 import GHC.Arr (accum)
 import Control.Arrow (ArrowChoice(right))
 
+
 data Fruit =
      Peach
     |Plum
@@ -157,3 +158,15 @@ myUnfoldr f x = case f x of
     Nothing -> []
     Just (y,z) -> y : myUnfoldr f z
 
+
+{-data Optional a =
+    Nada
+    | Only a
+    deriving (Eq, Show)
+
+instance Monoid a => Monoid (Optional a) where
+mempty = Nada
+mappend Nada Nada  = Nada
+mappend Nada (Only x) = Only x
+mappend (Only x) Nada = Only x
+mappend (Only x) (Only y) = Only (x > y) -}
