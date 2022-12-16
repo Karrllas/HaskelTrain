@@ -1,4 +1,6 @@
 {-# LANGUAGE StrictData #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE FlexibleInstances #-}
 
 module Jammin where
 
@@ -170,3 +172,81 @@ mappend Nada Nada  = Nada
 mappend Nada (Only x) = Only x
 mappend (Only x) Nada = Only x
 mappend (Only x) (Only y) = Only (x > y) -}
+-- Prelude> :t (fmap . fmap) replaceWithP
+-- (fmap . fmap) replaceWithP
+-- :: (Functor f1, Functor f) => f (f1 a) -> f (f1 Char)
+
+replaceWithP :: b -> Char
+replaceWithP = const 'p'
+lms :: [Maybe [Char]]
+lms = [Just "Ave", Nothing, Just "woohoo"]
+
+
+replaceWithP' :: [Maybe [Char]] -> Char
+replaceWithP' = replaceWithP
+
+
+liftedReplace :: Functor f => f a -> f Char
+liftedReplace = fmap replaceWithP
+
+
+liftedReplace' :: [Maybe [Char]] -> [Char]
+liftedReplace' = liftedReplace
+
+
+twiceLifted :: (Functor f1, Functor f) =>
+    f (f1 a) -> f (f1 Char)
+twiceLifted = (fmap . fmap) replaceWithP
+
+twiceLifted' :: [Maybe [Char]] -> [Maybe Char]
+twiceLifted' = twiceLifted
+
+
+thriceLifted :: (Functor f2, Functor f1, Functor f) =>
+    f (f1 (f2 a)) -> f (f1 (f2 Char))
+thriceLifted = (fmap . fmap . fmap) replaceWithP
+-- More specific or "concrete"
+thriceLifted' :: [Maybe [Char]] -> [Maybe [Char]]
+thriceLifted' = thriceLifted
+
+{-main :: IO ()
+main = do
+putStr "replaceWithP' lms: "
+print (replaceWithP' lms)
+putStr "liftedReplace lms: "
+print (liftedReplace lms)
+putStr "liftedReplace' lms: "
+print (liftedReplace' lms)
+putStr "twiceLifted lms: "
+print (twiceLifted lms)
+putStr "twiceLifted' lms: "
+print (twiceLifted' lms)
+putStr "thriceLifted lms: "
+print (thriceLifted lms)
+putStr "thriceLifted' lms: "
+print (thriceLifted' lms)-}
+
+newtype Constant a b =
+    Constant { getConstant :: a }
+    deriving (Eq, Show)
+
+instance Functor (Constant m) where
+    fmap _ (Constant v) = Constant v
+
+type Nat f g = forall a . f a -> g a
+
+maybeToList :: Nat Maybe []
+maybeToList Nothing = []
+maybeToList (Just a) = []
+
+data Tuple a b =
+    Tuples a b
+    deriving (Eq, Show)
+
+newtype Flip f a b =
+    Flips (f b a)
+    deriving (Eq, Show)
+
+instance Functor (Flip Tuple a) where
+    fmap f (Flips (Tuples a b)) = Flips  (Tuples (f a) b)
+

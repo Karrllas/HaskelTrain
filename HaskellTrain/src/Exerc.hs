@@ -165,3 +165,6 @@ myAny f = foldr ((||).f) False
 
 squishMap :: Foldable t => (a1 -> a2) -> t a1 -> [a2]
 squishMap f = foldr ((:).f ) [] 
+
+
+
