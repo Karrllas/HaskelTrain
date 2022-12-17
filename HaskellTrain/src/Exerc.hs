@@ -195,4 +195,4 @@ instance Functor (Constant a) where
     fmap f (Constant a)= Constant a
 instance Monoid a => Applicative (Constant a) where
     pure a = Constant mempty
-    (<*>) (Constant f) (Constant a) = Constant a
+    (<*>) (Constant f) (Constant c) = Constant (f `mappend` c)
