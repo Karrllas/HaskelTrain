@@ -5,8 +5,9 @@
 module Jammin where
 
 import Data.List hiding (isSubsequenceOf)
-import GHC.Arr (accum)
+import GHC.Arr (accum, STArray)
 import Control.Arrow (ArrowChoice(right))
+import Control.Monad (join)
 
 
 data Fruit =
@@ -156,7 +157,7 @@ myIterate :: (a -> a) -> a -> [a]
 myIterate f a = a : myIterate f (f a)
 
 myUnfoldr :: (b -> Maybe (a, b)) -> b -> [a]
-myUnfoldr f x = case f x of 
+myUnfoldr f x = case f x of
     Nothing -> []
     Just (y,z) -> y : myUnfoldr f z
 
@@ -250,3 +251,67 @@ newtype Flip f a b =
 instance Functor (Flip Tuple a) where
     fmap f (Flips (Tuples a b)) = Flips  (Tuples (f a) b)
 
+
+validateLength :: Int -> String -> Maybe String
+validateLength maxlen s =
+    if length s > maxlen
+    then Nothing
+    else Just s
+
+newtype Name = Name String deriving (Eq, Show )
+newtype Address = Address String deriving (Eq, Show)
+
+mkName :: String -> Maybe Name
+mkName s = Name <$> validateLength 25 s
+
+mkAddress :: String -> Maybe Address
+mkAddress s = Address <$> validateLength 100 s
+
+data Person =
+    Person Name Address deriving (Eq, Show)
+
+mkPerson :: String -> String -> Maybe Person
+mkPerson n a = if mkName n == Nothing || mkAddress a == Nothing
+               then Nothing
+               else Just (Person (Name  n)  (Address a))
+
+mkPerson' :: String -> String -> Maybe Person
+mkPerson' n a = Person <$> mkName n <*> mkAddress a
+
+bind :: Monad m => (a -> m b) -> m a -> m b
+bind f x = join $ fmap f x
+
+twiceWhenEven :: [Integer] -> [Integer]
+twiceWhenEven xs = do
+    x <- xs
+    if even x
+    then [x*x, x*x]
+    else []
+
+twiceWhenEven' :: [Integer] -> [Integer]
+twiceWhenEven' xs = join $ fmap (\x -> if even x then [x,x] else []) xs
+
+twiceWhenEven'' :: [Integer] -> [Integer]
+twiceWhenEven'' xs = xs >>= \x -> if even x then [x,x] else []
+
+
+f :: Maybe Integer
+f = Nothing
+g :: Maybe String
+g = Just "1"
+h :: Maybe Integer
+h = Just 10191
+zed :: a -> b -> c -> (a, b, c)
+zed = (,,)
+doSomething = do
+    a <- f
+    b <- g
+    c <- h
+    return (zed a b c)
+zed' :: Monad m => a -> b -> c -> m (a, b, c)
+zed' a b c = return (a, b, c)
+doSomething' = do
+    a <- f
+    b <- g
+    c <- h
+    zed' a b c
