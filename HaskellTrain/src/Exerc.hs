@@ -171,7 +171,7 @@ added :: Maybe Integer
 added = fmap (+3) (lookup 3 $ zip [1, 2, 3] [4, 5, 6])
 
 y :: Maybe Integer
-y = lookup 3 $ zip [1, 2, 3] [4, 5, 6]
+y = lookup 3 $ zip [1, 2, 3] [4, 5, 7]
 
 z :: Maybe Integer
 z = lookup 2 $ zip [1, 2, 3] [4, 5, 6]
@@ -196,3 +196,5 @@ instance Functor (Constant a) where
 instance Monoid a => Applicative (Constant a) where
     pure a = Constant mempty
     (<*>) (Constant f) (Constant c) = Constant (f `mappend` c)
+
+    
