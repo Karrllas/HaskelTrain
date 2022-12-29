@@ -3,7 +3,7 @@ module Exerc where
 
 import Data.List ( sort , intersperse)
 import GHC.IO.Device (IODevice(dup2))
-import Data.Char 
+import Data.Char
 
 m :: (x->y) -> (y->(w,z))-> x -> w
 m f g x = fst (g (f x))
@@ -154,18 +154,18 @@ myZip xs [] = []
 myZip (x:xs) (y:ys) = (x,y) : myZip xs ys
 
 myZipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
-myZipWith f xs []= [] 
-myZipWith f [] ys= []   
+myZipWith f xs []= []
+myZipWith f [] ys= []
 myZipWith f (x:xs) (y:ys)= f x y : myZipWith f xs ys
 
 myZip' :: [a] -> [b] -> [(a, b)]
 myZip' = myZipWith (,)
 
 myAny :: (a -> Bool) -> [a] -> Bool
-myAny f = foldr ((||).f) False 
+myAny f = foldr ((||).f) False
 
 squishMap :: Foldable t => (a1 -> a2) -> t a1 -> [a2]
-squishMap f = foldr ((:).f ) [] 
+squishMap f = foldr ((:).f ) []
 
 added :: Maybe Integer
 added = fmap (+3) (lookup 3 $ zip [1, 2, 3] [4, 5, 6])
@@ -177,12 +177,12 @@ z :: Maybe Integer
 z = lookup 2 $ zip [1, 2, 3] [4, 5, 6]
 
 tupled :: Maybe (Integer, Integer)
-tupled = (,) <$> y <*> z 
+tupled = (,) <$> y <*> z
 
 newtype Identity a = Identity a
         deriving (Eq, Ord, Show)
 instance Functor Identity where
-        fmap f (Identity x) = Identity (f x)  
+        fmap f (Identity x) = Identity (f x)
 instance Applicative Identity where
         pure x= Identity x
         (<*>) (Identity f) (Identity x) = Identity (f x)
@@ -197,4 +197,9 @@ instance Monoid a => Applicative (Constant a) where
     pure a = Constant mempty
     (<*>) (Constant f) (Constant c) = Constant (f `mappend` c)
 
-    
+
+percentage :: Integer -> (Integer, Integer)
+percentage x = (round $ fromInteger x * 0.9  , x - round (fromInteger x * 0.9) )
+
+percentage2 :: Integer -> (Integer, Integer)
+percentage2 x = (10* div x 10 ,10 )
