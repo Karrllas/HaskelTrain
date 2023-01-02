@@ -1,6 +1,7 @@
 {-# LANGUAGE StrictData #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE FlexibleContexts #-}
 
 module Jammin where
 
@@ -8,6 +9,7 @@ import Data.List hiding (isSubsequenceOf)
 import GHC.Arr (accum, STArray)
 import Control.Arrow (ArrowChoice(right))
 import Control.Monad (join)
+import Data.Bits (Bits(xor))
 
 
 data Fruit =
@@ -83,9 +85,9 @@ allLanguages = [Haskell, Agda, Idris, PureScript]
 allProgrammers :: [OperatingSystem] -> [ProgrammingLanguage] -> [Programmer]
 allProgrammers xs ys = [Programmeeer x y | x <- xs , y <- ys ]
 
-data Product a b =
+{-data Product a b =
     a :&: b
-    deriving (Eq, Show)
+    deriving (Eq, Show)-}
 
     --- Trees
 
@@ -162,17 +164,35 @@ myUnfoldr f x = case f x of
     Just (y,z) -> y : myUnfoldr f z
 
 
-{-data Optional a =
+data Optional a =
     Nada
     | Only a
     deriving (Eq, Show)
 
-instance Monoid a => Monoid (Optional a) where
-mempty = Nada
-mappend Nada Nada  = Nada
-mappend Nada (Only x) = Only x
-mappend (Only x) Nada = Only x
-mappend (Only x) (Only y) = Only (x > y) -}
+instance (Semigroup a)=>Semigroup (Optional a)  where 
+    Only a <> Only b = Only (a <> b)
+    Only a <> Nada = Nada
+    Nada <> Only b = Nada
+    _ <> _ = Nada  
+
+
+instance (Monoid a) => Monoid (Optional a) where
+    mempty = Nada
+    mappend Nada Nada  = Nada
+    mappend Nada (Only x) = Only x
+    mappend (Only x) Nada = Only x
+    mappend (Only x) (Only y) = Only (x <> y) 
+
+instance Foldable Optional  where
+    foldr _ z Nada = z 
+    foldr f z (Only a) = f a z       
+
+    foldl _ z Nada = z 
+    foldl f z (Only a) = f z a  
+
+    foldMap _  Nada = mempty
+    foldMap f (Only a) = f a
+
 -- Prelude> :t (fmap . fmap) replaceWithP
 -- (fmap . fmap) replaceWithP
 -- :: (Functor f1, Functor f) => f (f1 a) -> f (f1 Char)
@@ -316,11 +336,23 @@ doSomething' = do
     c <- h
     zed' a b c
 
-    newtype Constant a b =
+{-newtype Constant a b =
         Constant { getConstant :: a }
         deriving (Eq, Ord, Show)
 instance Functor (Constant a) where
     fmap f (Constant a)= Constant a
 instance Monoid a => Applicative (Constant a) where
     pure a = Constant mempty
-    (<*>) (Constant f) (Constant c) = Constant (f `mappend` c)
+    (<*>) (Constant f) (Constant c) = Constant (f `mappend` c)-}
+
+
+data Identity a = Identity a
+
+instance Foldable Identity where
+    foldr f z (Identity x) = f x z
+
+    foldl f z (Identity x) = f z x
+
+    foldMap f (Identity x) = f x
+
+
