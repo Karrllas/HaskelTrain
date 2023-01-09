@@ -30,6 +30,7 @@ library
       Exerc
       Jammin
       Lib
+      Phone
   other-modules:
       Paths_HaskellTrain
   hs-source-dirs:
