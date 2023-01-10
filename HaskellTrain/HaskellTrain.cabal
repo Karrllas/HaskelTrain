@@ -30,6 +30,7 @@ library
       Exerc
       Jammin
       Lib
+      Monoid
       Phone
   other-modules:
       Paths_HaskellTrain

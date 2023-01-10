@@ -320,6 +320,21 @@ myUnfoldr f x = case f x of
     Nothing -> []
     Just (x1,x2) -> x1 : myUnfoldr f x2
 
+--betterIterate :: (a -> a) -> a -> [a]
+--betterIterate f x = myUnfoldr (Just (f x)) x
 
 test :: Integral b => b -> Maybe (Bool, b)
 test x = Just (x `mod` 3 == 0, x+1)
+
+data BinaryTree a =
+    Leaf
+    | Node (BinaryTree a) a (BinaryTree a)
+    deriving (Eq, Ord, Show)
+
+unFoldTree :: (a -> Maybe (a,b,a)) -> a -> BinaryTree b
+unFoldTree f x = case f x of   
+    Nothing -> Leaf
+    Just (x,y,z) -> Node (unFoldTree f x) y (unFoldTree f z)
+
+treeBuild :: Integer -> BinaryTree Integer
+treeBuild n = unFoldTree (\x -> if x >= n then Nothing else Just (x+1 ,x ,x+1 )) 0

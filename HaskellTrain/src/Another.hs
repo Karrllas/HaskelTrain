@@ -1,4 +1,4 @@
-module Another where
+{-module Another where
 
 import Control.Applicative
 import System.Random 
@@ -78,3 +78,4 @@ m2 = (+) <$> hurr <*> durr
 m3 :: Integer -> Integer
 m3 = liftA2 (+) hurr durr
 
+-}
