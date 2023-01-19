@@ -1,25 +1,33 @@
+{-# LANGUAGE InstanceSigs #-}
 
 module Monoid where
 
 import Control.Monad
 import Data.Monoid
 import Test.QuickCheck
+import Control.Applicative (Applicative(liftA2))
 
 newtype First' a =
     First' { getFirst' :: Maybe a }
     deriving (Eq, Show)
 
+instance (Arbitrary a) => Arbitrary (First' a) where 
+     arbitrary :: Arbitrary a => Gen (First' a)
+     arbitrary = fmap First' arbitrary
 
-instance Semigroup (First' a) where 
+
+instance (Semigroup a) => Semigroup (First' a) where 
      First' Nothing <> a = a
-     a <> _ = a 
+     First' a <> First' b = First' (a <> b)
 
 
-instance Monoid (First' a) where
-    mempty = undefined
-    mappend = undefined
+instance (Monoid a) => Monoid (First' a) where
+    mempty = First' Nothing
+    mappend (First' a) (First' Nothing) = First' (a<>Nothing)
+    mappend (First' a) (First' b) = First' (a<>b)
+    
 
-firstMappend :: First' a -> First' a -> First' a
+firstMappend :: (Monoid a) => First' a -> First' a -> First' a
 firstMappend = mappend
 
 type FirstMappend =
@@ -41,4 +49,54 @@ main = do
     quickCheck (monoidLeftIdentity :: First' String -> Bool)
     quickCheck (monoidRightIdentity :: First' String -> Bool)
 
+data Trivial = Trivial deriving (Eq, Show)
+instance Semigroup Trivial where
+    (<>) :: Trivial -> Trivial -> Trivial
+    _ <> _ = Trivial
+instance Arbitrary Trivial where
+    arbitrary :: Gen Trivial
+    arbitrary = return Trivial
+
+semigroupAssoc :: (Eq m, Semigroup m) => m -> m -> m -> Bool
+semigroupAssoc a b c = (a <> (b <> c)) == ((a <> b) <> c)
+
+type TrivialAssoc = Trivial -> Trivial -> Trivial -> Bool
+
+newtype Identity a = Identity a 
+    deriving (Eq, Show)
+
+instance Arbitrary a => Arbitrary (Identity a) where
+    arbitrary :: Gen (Identity a)
+    arbitrary = fmap Identity arbitrary
+
+instance Semigroup a => Semigroup (Identity a) where 
+    (Identity a) <> (Identity b) = Identity (a<>b)
+
+type IdentityAssoc a = Identity a -> Identity a -> Identity a -> Bool
+
+data Two a b = Two a b
+    deriving (Eq, Show)
+
+instance (Semigroup a, Semigroup b) => Semigroup (Two a b) where 
+    (Two a b) <> (Two a' b') = Two (a<>a') (b<>b')
+
+instance (Arbitrary a, Arbitrary b) => Arbitrary (Two a b) where 
+    arbitrary :: (Arbitrary a, Arbitrary b) => Gen (Two a b)
+    arbitrary = liftA2 Two arbitrary arbitrary 
+
+type TwoAssoc a b = Two a b -> Two a b-> Two a b-> Bool
+
+newtype BoolConj = BoolConj Bool deriving (Eq, Show)
+
+instance Semigroup BoolConj where 
+    BoolConj True <> BoolConj True = BoolConj True 
+    _ <> _ = BoolConj False
+
+instance Arbitrary BoolConj where 
+    arbitrary :: Gen BoolConj
+    arbitrary = fmap BoolConj arbitrary
+
+type BoolAssocCon = BoolConj -> BoolConj -> BoolConj -> Bool
  
+
+
