@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE InstanceSigs #-}
 module Exerc where
 
 import Data.List ( sort , intersperse)
@@ -6,6 +7,7 @@ import GHC.IO.Device (IODevice(dup2))
 import Data.Char
 import Data.Bits (Bits(xor))
 import GHC.Num (floatFromInteger)
+import Test.QuickCheck
 
 m :: (x->y) -> (y->(w,z))-> x -> w
 m f g x = fst (g (f x))
@@ -338,3 +340,33 @@ unFoldTree f x = case f x of
 
 treeBuild :: Integer -> BinaryTree Integer
 treeBuild n = unFoldTree (\x -> if x >= n then Nothing else Just (x+1 ,x ,x+1 )) 0
+
+data Trivial = Trivial deriving (Eq, Show)
+instance Semigroup Trivial where
+    (<>) :: Trivial -> Trivial -> Trivial
+    _ <> _ = Trivial
+instance Arbitrary Trivial where
+    arbitrary :: Gen Trivial
+    arbitrary = return Trivial
+
+semigroupAssoc :: (Eq m, Semigroup m) => m -> m -> m -> Bool
+semigroupAssoc a b c = (a <> (b <> c)) == ((a <> b) <> c)
+
+type TrivialAssoc = Trivial -> Trivial -> Trivial -> Bool
+
+a :: [Int]
+a = fmap (+1) $ read "[1]" 
+
+b :: Maybe [[Char]]
+b = (fmap.fmap) (++ "lol") (Just ["Hi,", "Hello"])
+
+c = fmap (*2) (\x -> x - 2)
+
+d = fmap ((return '1' ++) . show) (\x -> [x, 1..3])
+
+{-e :: IO Integer
+e = let ioi = readIO "1" :: IO Integer
+        changed =  read  ("123"++) show ioi
+    in fmap (*3) changed
+
+    (*3) read ("123"++) show readIO "1"-}

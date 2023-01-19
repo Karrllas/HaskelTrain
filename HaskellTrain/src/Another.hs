@@ -1,5 +1,5 @@
-{-module Another where
-
+module Another where
+{-
 import Control.Applicative
 import System.Random 
 import Control.Applicative (liftA3)
