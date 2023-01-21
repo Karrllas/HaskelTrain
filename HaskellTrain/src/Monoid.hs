@@ -5,6 +5,7 @@ module Monoid where
 import Control.Monad
 import Data.Monoid
 import Test.QuickCheck
+import Test.QuickCheck.Function
 import Control.Applicative (Applicative(liftA2))
 
 newtype First' a =
@@ -80,6 +81,9 @@ data Two a b = Two a b
 instance (Semigroup a, Semigroup b) => Semigroup (Two a b) where 
     (Two a b) <> (Two a' b') = Two (a<>a') (b<>b')
 
+instance Functor (Two a) where 
+    fmap f (Two a b) = Two a $ f b 
+
 instance (Arbitrary a, Arbitrary b) => Arbitrary (Two a b) where 
     arbitrary :: (Arbitrary a, Arbitrary b) => Gen (Two a b)
     arbitrary = liftA2 Two arbitrary arbitrary 
@@ -98,5 +102,16 @@ instance Arbitrary BoolConj where
 
 type BoolAssocCon = BoolConj -> BoolConj -> BoolConj -> Bool
  
+functorCompose' :: (Eq (f c), Functor f) =>
+    f a
+    -> Fun a b
+    -> Fun b c
+    -> Bool
+functorCompose' x (Fun _ f) (Fun _ g) =
+    (fmap (g . f) x) == (fmap g . fmap f $ x)
+
+functorIdentity :: (Eq (f b), Functor f) => f b -> Bool
+functorIdentity f =
+    fmap id f == f
 
 
